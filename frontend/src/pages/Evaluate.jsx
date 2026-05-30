@@ -584,12 +584,17 @@ export default function Evaluate() {
         </div>
 
         {loading && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            {breakoutContext
-              ? `Fetching fundamentals for ${symbol} — comparing with breakout signals…`
-              : "Fetching financials, balance sheet, cashflow & analyst data from Yahoo Finance…"}
-            {" "}this takes 15–30 seconds.
+          <div className="mt-3 space-y-1">
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+              {breakoutContext
+                ? `Fetching fundamentals for ${symbol} — comparing with breakout signals…`
+                : "Fetching financials, balance sheet, cashflow & analyst data from Yahoo Finance…"}
+              {" "}This can take up to 60 seconds on cloud servers.
+            </div>
+            <div className="text-xs text-yellow-700">
+              ⚠ If it times out, click Evaluate again — the second attempt is usually faster.
+            </div>
           </div>
         )}
       </div>

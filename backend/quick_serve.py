@@ -12,6 +12,7 @@ Usage:
 import json
 import logging
 import threading
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
 from datetime import date, datetime
 from pathlib import Path
 from typing import Optional
@@ -345,6 +346,9 @@ def subscribe(payload: dict):
 
 
 # ── Stock Evaluation endpoints ────────────────────────────────────────────────
+# yfinance can hang indefinitely when Yahoo Finance rate-limits cloud IPs.
+# We run it in a separate thread and enforce a hard 90-second timeout.
+_eval_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="eval")
 
 def _verdict_to_dict(verdict) -> dict:
     """Serialise a StockVerdict dataclass to a JSON-safe dict."""
@@ -390,6 +394,16 @@ def _verdict_to_dict(verdict) -> dict:
     }
 
 
+def _run_evaluate(sym: str, exchange: str, discount_rate: float, terminal_growth: float) -> dict:
+    """Runs inside the thread-pool so we can enforce a timeout."""
+    data    = fetch_stock(sym, exchange)
+    verdict = evaluate_stock(sym if not hasattr(data, 'ticker') else data.ticker,
+                             data,
+                             discount_rate=discount_rate,
+                             terminal_growth=terminal_growth)
+    return _verdict_to_dict(verdict)
+
+
 @app.get("/api/evaluate/{symbol}")
 def evaluate_symbol(
     symbol: str,
@@ -401,18 +415,23 @@ def evaluate_symbol(
     Run full fundamental evaluation for one stock.
     Takes ~10-30 seconds (yfinance fetches financials, history, analyst data).
     Results are cached in memory for 1 hour.
+    Hard timeout: 90 seconds (Yahoo Finance may be slow from cloud servers).
     """
+    sym = symbol.upper()
     try:
-        data = fetch_stock(symbol.upper(), exchange.upper())
-        verdict = evaluate_stock(
-            data.ticker, data,
-            discount_rate=discount_rate,
-            terminal_growth=terminal_growth,
+        future = _eval_pool.submit(_run_evaluate, sym, exchange.upper(), discount_rate, terminal_growth)
+        return future.result(timeout=90)
+    except FuturesTimeout:
+        msg = (
+            "Yahoo Finance did not respond within 90 seconds. "
+            "This often happens on cloud servers. "
+            "Please try again in 1–2 minutes — it usually works on the second attempt."
         )
-        return _verdict_to_dict(verdict)
+        logger.warning("Evaluation timed out for %s", sym)
+        return {"ticker": sym, "error": msg, "verdict": "N/A"}
     except Exception as e:
-        logger.error("Evaluation failed for %s: %s", symbol, e)
-        return {"ticker": symbol.upper(), "error": str(e), "verdict": "N/A"}
+        logger.error("Evaluation failed for %s: %s", sym, e, exc_info=True)
+        return {"ticker": sym, "error": str(e), "verdict": "N/A"}
 
 
 @app.post("/api/evaluate/batch")
@@ -433,11 +452,10 @@ def evaluate_batch(payload: dict):
     results = []
     for sym in symbols:
         try:
-            data    = fetch_stock(sym.upper(), exchange)
-            verdict = evaluate_stock(data.ticker, data,
-                                     discount_rate=discount_rate,
-                                     terminal_growth=terminal_growth)
-            results.append(_verdict_to_dict(verdict))
+            future = _eval_pool.submit(_run_evaluate, sym.upper(), exchange, discount_rate, terminal_growth)
+            results.append(future.result(timeout=90))
+        except FuturesTimeout:
+            results.append({"ticker": sym.upper(), "error": "Timed out — Yahoo Finance slow from cloud server. Try again.", "verdict": "N/A"})
         except Exception as e:
             results.append({"ticker": sym.upper(), "error": str(e), "verdict": "N/A"})
 
