@@ -10,6 +10,7 @@ import History from "./pages/History";
 import Alerts from "./pages/Alerts";
 import Methodology from "./pages/Methodology";
 import Evaluate from "./pages/Evaluate";
+import Sectors from "./pages/Sectors";
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/methodology" element={<Methodology />} />
           <Route path="/evaluate" element={<Evaluate />} />
+          <Route path="/sectors" element={<Sectors />} />
         </Routes>
       </main>
     </BrowserRouter>

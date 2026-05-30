@@ -462,6 +462,33 @@ def evaluate_batch(payload: dict):
     return results
 
 
+# ── Sector endpoints ─────────────────────────────────────────────────────────
+
+@app.get("/api/sectors/list")
+def list_sectors():
+    """All unique sectors with stock counts, sorted by count (Unknown last)."""
+    counts: dict[str, int] = {}
+    for r in _state["breakouts"]:
+        sector = r.get("sector") or "Unknown"
+        counts[sector] = counts.get(sector, 0) + 1
+
+    result = [{"sector": s, "count": c} for s, c in counts.items()]
+    result.sort(key=lambda x: (-x["count"] if x["sector"] != "Unknown" else 0))
+    return result
+
+
+@app.get("/api/sectors/stocks")
+def sector_stocks(sector: str = Query(...)):
+    """All breakout stocks for a given sector, sorted by strength score desc."""
+    target = sector.lower().strip()
+    matched = [
+        r for r in _state["breakouts"]
+        if (r.get("sector") or "Unknown").lower() == target
+    ]
+    matched.sort(key=lambda x: x.get("strength_score", 0), reverse=True)
+    return matched
+
+
 # ── Startup ───────────────────────────────────────────────────────────────────
 
 @app.on_event("startup")

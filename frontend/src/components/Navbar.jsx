@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { TrendingUp, BookMarked, History, Bell, FlaskConical, BookOpen } from "lucide-react";
+import { TrendingUp, BookMarked, History, Bell, FlaskConical, Building2, BookOpen } from "lucide-react";
 import clsx from "clsx";
 
 const links = [
@@ -9,6 +9,7 @@ const links = [
   { to: "/history",     label: "History",      icon: History      },
   { to: "/alerts",      label: "Alerts",       icon: Bell         },
   { to: "/evaluate",    label: "Evaluate",     icon: FlaskConical },
+  { to: "/sectors",     label: "Sectors",      icon: Building2    },
   { to: "/methodology", label: "How It Works", icon: BookOpen     },
 ];
 
