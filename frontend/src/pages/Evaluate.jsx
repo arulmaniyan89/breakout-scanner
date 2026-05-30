@@ -619,8 +619,47 @@ export default function Evaluate() {
       )}
 
       {result?.error && (
-        <div className="bg-red-900/30 border border-red-800 rounded-lg px-4 py-3 text-sm text-red-300">
-          Could not evaluate {result.ticker}: {result.error}
+        <div className="bg-red-900/30 border border-red-800 rounded-xl p-4 space-y-3">
+          <div className="flex items-start gap-2 text-sm text-red-300">
+            <span className="text-lg shrink-0">⚠️</span>
+            <div>
+              <div className="font-semibold mb-0.5">Could not fetch data for {result.ticker}</div>
+              <div className="text-xs text-red-400/80">
+                {result.error?.includes("Yahoo Finance") || result.error?.includes("fetch data")
+                  ? "Yahoo Finance is blocking this cloud server's IP. This is a known limitation of free hosting."
+                  : result.error}
+              </div>
+            </div>
+          </div>
+
+          {/* Fallback links */}
+          <div className="border-t border-red-800/50 pt-3">
+            <div className="text-xs text-red-400 mb-2">
+              View fundamentals directly on these platforms (free, no login needed):
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(() => {
+                const sym = result.ticker.replace(".NS","").replace(".BO","");
+                return [
+                  { label: "Screener.in",  href: `https://www.screener.in/company/${sym}/`, icon: "🔍", desc: "P/E, EPS, ROE, Balance Sheet" },
+                  { label: "NSE India",    href: `https://www.nseindia.com/get-quotes/equity?symbol=${sym}`, icon: "🏛", desc: "Price, Market Cap" },
+                  { label: "TradingView", href: `https://www.tradingview.com/chart/?symbol=NSE%3A${sym}`, icon: "📊", desc: "Charts, Technicals" },
+                  { label: "Moneycontrol",href: `https://www.moneycontrol.com/india/stockpricequote/${sym.toLowerCase()}`, icon: "💹", desc: "News, Fundamentals" },
+                ].map(({ label, href, icon, desc }) => (
+                  <a key={label} href={href} target="_blank" rel="noopener noreferrer"
+                    className="flex flex-col px-3 py-2 rounded-lg bg-gray-800 border border-gray-700
+                               text-xs text-gray-400 hover:text-white hover:border-gray-500 transition">
+                    <span>{icon} {label} ↗</span>
+                    <span className="text-gray-600 mt-0.5">{desc}</span>
+                  </a>
+                ));
+              })()}
+            </div>
+          </div>
+
+          <div className="text-xs text-gray-600">
+            💡 Tip: The Evaluate feature works fully when running the app locally on your computer.
+          </div>
         </div>
       )}
 

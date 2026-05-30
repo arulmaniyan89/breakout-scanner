@@ -1,6 +1,9 @@
 """
 Thin yfinance wrapper for fundamental evaluation.
 No Streamlit dependency — uses a simple in-process dict cache (TTL 1 hour).
+
+Cloud note: Yahoo Finance sometimes blocks cloud server IPs.
+We use curl_cffi with Chrome impersonation to maximise success rate.
 """
 import time
 import logging
@@ -13,6 +16,36 @@ logger = logging.getLogger(__name__)
 
 _CACHE: dict[str, tuple[float, "StockData"]] = {}   # ticker → (fetched_at, obj)
 _CACHE_TTL = 3600  # 1 hour
+
+
+def _make_yf_session():
+    """
+    Return the best available HTTP session for yfinance.
+    curl_cffi with Chrome impersonation bypasses Yahoo Finance bot-detection
+    better than plain requests, especially from cloud servers.
+    """
+    try:
+        from curl_cffi import requests as cffi_req
+        session = cffi_req.Session(impersonate="chrome120")
+        logger.debug("yfinance session: curl_cffi / chrome120")
+        return session
+    except Exception as exc:
+        logger.warning("curl_cffi unavailable (%s) — falling back to requests with browser UA", exc)
+
+    try:
+        import requests as std_req
+        s = std_req.Session()
+        s.headers.update({
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/120.0.0.0 Safari/537.36"
+            ),
+            "Accept-Language": "en-US,en;q=0.9",
+        })
+        return s
+    except Exception:
+        return None
 
 
 def _ticker_with_suffix(symbol: str, exchange: str) -> str:
@@ -31,7 +64,8 @@ class StockData:
 
     def __init__(self, ticker: str):
         self.ticker = ticker.upper()
-        self._yf = yf.Ticker(self.ticker)
+        session = _make_yf_session()
+        self._yf = yf.Ticker(self.ticker, session=session) if session else yf.Ticker(self.ticker)
         self._info: dict | None = None
         self._financials: dict | None = None
         self._history: pd.DataFrame | None = None
@@ -59,9 +93,14 @@ class StockData:
 
     def _fetch_info(self) -> dict:
         try:
-            return self._yf.info or {}
+            info = self._yf.info or {}
+            if not info:
+                logger.warning("yfinance returned empty info for %s — Yahoo Finance may be blocking this server's IP", self.ticker)
+            else:
+                logger.info("yfinance info OK for %s (%d keys)", self.ticker, len(info))
+            return info
         except Exception as e:
-            logger.debug("info fetch failed for %s: %s", self.ticker, e)
+            logger.warning("yfinance info fetch failed for %s: %s", self.ticker, e)
             return {}
 
     def _fetch_financials(self) -> dict:
