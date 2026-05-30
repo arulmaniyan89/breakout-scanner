@@ -39,6 +39,7 @@ def _save_results() -> None:
     try:
         payload = {
             "breakouts":     _state["breakouts"],
+            "sector_data":   _state["sector_data"],
             "scan_date":     _state["scan_date"],
             "nifty_trend":   _state["nifty_trend"],
             "total_scanned": _state["total_scanned"],
@@ -59,6 +60,7 @@ def _load_results() -> bool:
         with open(RESULTS_FILE, "r", encoding="utf-8") as fh:
             payload = json.load(fh)
         _state["breakouts"]     = payload.get("breakouts", [])
+        _state["sector_data"]   = payload.get("sector_data", [])
         _state["scan_date"]     = payload.get("scan_date")
         _state["nifty_trend"]   = payload.get("nifty_trend")
         _state["total_scanned"] = payload.get("total_scanned", 0)
@@ -83,6 +85,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 # ── In-memory state ──────────────────────────────────────────────────────────
 _state = {
     "breakouts": [],          # list[dict]  — today's results
+    "sector_data": [],        # list[dict]  — ALL scanned stocks with sector info
     "scan_date": None,        # str
     "nifty_trend": None,      # bool
     "total_scanned": 0,
@@ -133,6 +136,22 @@ def _as_dict(analysis, name: str, sector: str, market_cap: float) -> dict:
         "pct_gain_5d": None,
         "pct_gain_20d": None,
     }
+
+
+def _quick_rsi(df, period: int = 14) -> Optional[float]:
+    """Fast RSI computation from a DataFrame with a 'close' column."""
+    try:
+        close = df["close"].astype(float)
+        if len(close) < period + 1:
+            return None
+        delta = close.diff()
+        gain  = delta.clip(lower=0).rolling(period).mean().iloc[-1]
+        loss  = (-delta.clip(upper=0)).rolling(period).mean().iloc[-1]
+        if float(loss) == 0:
+            return 100.0
+        return round(100.0 - 100.0 / (1.0 + float(gain) / float(loss)), 1)
+    except Exception:
+        return None
 
 
 def _run_scan_thread():
@@ -187,6 +206,57 @@ def _run_scan_thread():
             )
 
         _state["breakouts"] = enriched
+
+        # ── Step 4b: Build sector index (ALL scanned stocks) ──────────────────
+        _state["status_detail"] = "Building sector index…"
+        breakout_map = {r.symbol: r for r in results}
+        sector_list  = []
+        for sym, df in symbol_data.items():
+            if df.empty or len(df) < 2:
+                continue
+            try:
+                latest     = df.iloc[-1]
+                prev       = df.iloc[-2]
+                cmp_val    = round(float(latest["close"]), 2)
+                prev_close = float(prev["close"])
+                pct_change = round(
+                    ((cmp_val - prev_close) / prev_close) * 100, 2
+                ) if prev_close > 0 else 0.0
+                avg_vol    = (
+                    df["volume"].rolling(20).mean().iloc[-1]
+                    if len(df) >= 20 else float(df["volume"].mean())
+                )
+                vol_ratio  = (
+                    round(float(latest["volume"]) / float(avg_vol), 2)
+                    if float(avg_vol) > 0 else 0.0
+                )
+                rsi_val    = _quick_rsi(df)
+                info       = get_company_info(sym)
+                br         = breakout_map.get(sym)
+                sector_list.append({
+                    "symbol":         sym,
+                    "name":           info.get("name", sym),
+                    "sector":         info.get("sector", "Unknown"),
+                    "cmp":            cmp_val,
+                    "pct_change":     pct_change,
+                    "volume":         int(float(latest.get("volume", 0))),
+                    "volume_ratio":   (
+                        round(float(br.volume_ratio), 2)
+                        if br and br.volume_ratio else vol_ratio
+                    ),
+                    "rsi":            (
+                        round(float(br.rsi), 1)
+                        if br and br.rsi else rsi_val
+                    ),
+                    "strength":       br.strength.value if br and br.strength else None,
+                    "strength_score": br.strength_score if br else 0,
+                    "is_breakout":    br is not None,
+                })
+            except Exception:
+                pass
+        _state["sector_data"] = sector_list
+        logger.info("Sector index: %d stocks across all sectors", len(sector_list))
+
         _state["scan_date"] = str(date.today())
         _state["status"] = "completed"
         _state["status_detail"] = (
@@ -466,26 +536,33 @@ def evaluate_batch(payload: dict):
 
 @app.get("/api/sectors/list")
 def list_sectors():
-    """All unique sectors with stock counts, sorted by count (Unknown last)."""
+    """All unique sectors with stock counts, sorted by count descending.
+    Uses sector_data (all scanned stocks) when available; falls back to breakouts.
+    Unknown sector is excluded from the returned list."""
+    source = _state.get("sector_data") or _state["breakouts"]
     counts: dict[str, int] = {}
-    for r in _state["breakouts"]:
+    for r in source:
         sector = r.get("sector") or "Unknown"
+        if sector == "Unknown":
+            continue
         counts[sector] = counts.get(sector, 0) + 1
-
     result = [{"sector": s, "count": c} for s, c in counts.items()]
-    result.sort(key=lambda x: (-x["count"] if x["sector"] != "Unknown" else 0))
+    result.sort(key=lambda x: -x["count"])
     return result
 
 
 @app.get("/api/sectors/stocks")
 def sector_stocks(sector: str = Query(...)):
-    """All breakout stocks for a given sector, sorted by strength score desc."""
+    """All stocks for a given sector; breakout stocks listed first."""
+    source = _state.get("sector_data") or _state["breakouts"]
     target = sector.lower().strip()
-    matched = [
-        r for r in _state["breakouts"]
-        if (r.get("sector") or "Unknown").lower() == target
-    ]
-    matched.sort(key=lambda x: x.get("strength_score", 0), reverse=True)
+    matched = [r for r in source if (r.get("sector") or "Unknown").lower() == target]
+    # Sort: breakout stocks first (by strength_score), then non-breakouts alphabetically
+    matched.sort(key=lambda x: (
+        -int(bool(x.get("is_breakout"))),
+        -x.get("strength_score", 0),
+        x.get("symbol", ""),
+    ))
     return matched
 
 

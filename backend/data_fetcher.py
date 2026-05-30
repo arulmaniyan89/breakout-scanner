@@ -224,6 +224,193 @@ NSE_COMPANY_INFO: dict[str, tuple[str, str]] = {
     "SANOFI":      ("Sanofi India Ltd",                           "Pharmaceuticals"),
     "MANJUSHREE":  ("Manjushree Technopack Ltd",                  "Packaging"),
     "IIFL":        ("IIFL Finance Ltd",                           "Financial Services"),
+
+    # ── Financial Services (extended) ─────────────────────────────────────────
+    "SBICARDS":    ("SBI Cards and Payment Services Ltd",         "Financial Services"),
+    "CREDITACC":   ("CreditAccess Grameen Ltd",                   "Financial Services"),
+    "UJJIVANSFB":  ("Ujjivan Small Finance Bank Ltd",             "Financial Services"),
+    "EQUITASBNK":  ("Equitas Small Finance Bank Ltd",             "Financial Services"),
+    "HOMEFIRST":   ("Home First Finance Company India Ltd",       "Financial Services"),
+    "APTUS":       ("Aptus Value Housing Finance India Ltd",      "Financial Services"),
+    "IIFLWAM":     ("IIFL Wealth Management Ltd",                 "Financial Services"),
+    "MOTILALOFS":  ("Motilal Oswal Financial Services Ltd",       "Financial Services"),
+    "360ONE":      ("360 ONE WAM Ltd",                            "Financial Services"),
+    "CAMS":        ("Computer Age Management Services Ltd",       "Financial Services"),
+    "KFINTECH":    ("KFin Technologies Ltd",                      "Financial Services"),
+    "NIACL":       ("The New India Assurance Company Ltd",        "Financial Services"),
+    "STARHEALTH":  ("Star Health and Allied Insurance Co Ltd",    "Financial Services"),
+    "SBFC":        ("SBFC Finance Ltd",                           "Financial Services"),
+    "UGROCAP":     ("Ugro Capital Ltd",                           "Financial Services"),
+    "MASFIN":      ("MAS Financial Services Ltd",                 "Financial Services"),
+    "SURYODAY":    ("Suryoday Small Finance Bank Ltd",            "Financial Services"),
+    "GODIGIT":     ("Go Digit General Insurance Ltd",             "Financial Services"),
+    "JMFINANCIL":  ("JM Financial Ltd",                           "Financial Services"),
+    "POONAWALLA":  ("Poonawalla Fincorp Ltd",                     "Financial Services"),
+
+    # ── Information Technology (extended) ─────────────────────────────────────
+    "RATEGAIN":    ("RateGain Travel Technologies Ltd",           "Information Technology"),
+    "TANLA":       ("Tanla Platforms Ltd",                        "Information Technology"),
+    "NEWGEN":      ("Newgen Software Technologies Ltd",           "Information Technology"),
+    "MASTEK":      ("Mastek Ltd",                                 "Information Technology"),
+    "ECLERX":      ("eClerx Services Ltd",                        "Information Technology"),
+    "ZENSAR":      ("Zensar Technologies Ltd",                    "Information Technology"),
+    "SONATSOFTW":  ("Sonata Software Ltd",                        "Information Technology"),
+    "INTELLECT":   ("Intellect Design Arena Ltd",                 "Information Technology"),
+    "HAPPSTMNDS":  ("Happiest Minds Technologies Ltd",            "Information Technology"),
+    "NIITLTD":     ("NIIT Ltd",                                   "Information Technology"),
+    "LATENTVIEW":  ("LatentView Analytics Ltd",                   "Information Technology"),
+    "TATATECH":    ("Tata Technologies Ltd",                      "Information Technology"),
+    "NUCLEUS":     ("Nucleus Software Exports Ltd",               "Information Technology"),
+
+    # ── Healthcare (extended) ─────────────────────────────────────────────────
+    "FORTIS":      ("Fortis Healthcare Ltd",                      "Healthcare"),
+    "MAXHEALTH":   ("Max Healthcare Institute Ltd",               "Healthcare"),
+    "METROPOLIS":  ("Metropolis Healthcare Ltd",                  "Healthcare"),
+    "THYROCARE":   ("Thyrocare Technologies Ltd",                 "Healthcare"),
+    "ASTERDM":     ("Aster DM Healthcare Ltd",                    "Healthcare"),
+    "MEDPLUS":     ("MedPlus Health Services Ltd",                "Healthcare"),
+    "NH":          ("Narayana Hrudayalaya Ltd",                   "Healthcare"),
+    "KRSNAA":      ("Krsnaa Diagnostics Ltd",                     "Healthcare"),
+    "RAINBOW":     ("Rainbow Children's Medicare Ltd",            "Healthcare"),
+
+    # ── Pharmaceuticals (extended) ────────────────────────────────────────────
+    "SUVEN":       ("Suven Pharmaceuticals Ltd",                  "Pharmaceuticals"),
+    "SHILPAMED":   ("Shilpa Medicare Ltd",                        "Pharmaceuticals"),
+    "JBCHEPHARM":  ("JB Chemicals & Pharmaceuticals Ltd",         "Pharmaceuticals"),
+    "SOLARA":      ("Solara Active Pharma Sciences Ltd",          "Pharmaceuticals"),
+    "ERIS":        ("Eris Lifesciences Ltd",                      "Pharmaceuticals"),
+    "AJANTPHARM":  ("Ajanta Pharma Ltd",                          "Pharmaceuticals"),
+    "MARKSANS":    ("Marksans Pharma Ltd",                        "Pharmaceuticals"),
+
+    # ── Automobile (extended) ─────────────────────────────────────────────────
+    "EXIDEIND":    ("Exide Industries Ltd",                       "Automobile"),
+    "AMARAJABAT":  ("Amara Raja Energy & Mobility Ltd",           "Automobile"),
+    "MINDAIND":    ("Minda Industries Ltd",                       "Automobile"),
+    "SUPRAJIT":    ("Suprajit Engineering Ltd",                   "Automobile"),
+    "GABRIEL":     ("Gabriel India Ltd",                          "Automobile"),
+    "CRAFTSMAN":   ("Craftsman Automation Ltd",                   "Automobile"),
+    "SANSERA":     ("Sansera Engineering Ltd",                    "Automobile"),
+    "SANDHAR":     ("Sandhar Technologies Ltd",                   "Automobile"),
+    "TIINDIA":     ("Tube Investments of India Ltd",              "Automobile"),
+    "LUMAXIND":    ("Lumax Industries Ltd",                       "Automobile"),
+    "SUBROS":      ("Subros Ltd",                                 "Automobile"),
+    "VARROC":      ("Varroc Engineering Ltd",                     "Automobile"),
+
+    # ── Energy (extended) ─────────────────────────────────────────────────────
+    "GAIL":        ("GAIL (India) Ltd",                           "Energy"),
+    "MGL":         ("Mahanagar Gas Ltd",                          "Energy"),
+    "IGL":         ("Indraprastha Gas Ltd",                       "Energy"),
+    "GSPL":        ("Gujarat State Petronet Ltd",                 "Energy"),
+    "SJVN":        ("SJVN Ltd",                                   "Energy"),
+    "NHPC":        ("NHPC Ltd",                                   "Energy"),
+    "IREDA":       ("Indian Renewable Energy Development Agency", "Energy"),
+    "PETRONET":    ("Petronet LNG Ltd",                           "Energy"),
+    "HPCL":        ("Hindustan Petroleum Corporation Ltd",        "Energy"),
+    "ADANITOTAL":  ("Adani Total Gas Ltd",                        "Energy"),
+    "AEGISCHEM":   ("Aegis Logistics Ltd",                        "Energy"),
+
+    # ── Capital Goods & Infrastructure (extended) ─────────────────────────────
+    "NCC":         ("NCC Ltd",                                    "Capital Goods"),
+    "NBCC":        ("NBCC (India) Ltd",                           "Capital Goods"),
+    "RITES":       ("RITES Ltd",                                  "Capital Goods"),
+    "ENGINERSIN":  ("Engineers India Ltd",                        "Capital Goods"),
+    "RAILTEL":     ("RailTel Corporation of India Ltd",           "Capital Goods"),
+    "HGINFRA":     ("H.G. Infra Engineering Ltd",                 "Capital Goods"),
+    "PNCINFRA":    ("PNC Infratech Ltd",                          "Capital Goods"),
+    "KNRCON":      ("KNR Constructions Ltd",                      "Capital Goods"),
+    "JKCEMENT":    ("J.K. Cement Ltd",                            "Cement & Construction"),
+    "NUVOCO":      ("Nuvoco Vistas Corporation Ltd",              "Cement & Construction"),
+    "INDIACEM":    ("The India Cements Ltd",                      "Cement & Construction"),
+
+    # ── Chemicals (extended) ──────────────────────────────────────────────────
+    "CLEAN":       ("Clean Science and Technology Ltd",           "Chemicals"),
+    "GALAXYSURF":  ("Galaxy Surfactants Ltd",                     "Chemicals"),
+    "SUDARSCHEM":  ("Sudarshan Chemical Industries Ltd",          "Chemicals"),
+    "AARTI":       ("Aarti Industries Ltd",                       "Chemicals"),
+    "PCBL":        ("PCBL Ltd",                                   "Chemicals"),
+    "NEOGEN":      ("Neogen Chemicals Ltd",                       "Chemicals"),
+    "VINATI":      ("Vinati Organics Ltd",                        "Chemicals"),
+    "ROSSARI":     ("Rossari Biotech Ltd",                        "Chemicals"),
+    "CHEMPLASTS":  ("Chemplast Sanmar Ltd",                       "Chemicals"),
+    "DHANUKA":     ("Dhanuka Agritech Ltd",                       "Chemicals"),
+
+    # ── Metals & Mining (extended) ────────────────────────────────────────────
+    "APLAPOLLO":   ("APL Apollo Tubes Ltd",                       "Metals & Mining"),
+    "RATNAMANI":   ("Ratnamani Metals & Tubes Ltd",               "Metals & Mining"),
+    "JINDALSAW":   ("Jindal SAW Ltd",                             "Metals & Mining"),
+    "WELCORP":     ("Welspun Corp Ltd",                           "Metals & Mining"),
+    "JINDALSTEL":  ("Jindal Steel and Power Ltd",                 "Metals & Mining"),
+    "TATAMETALI":  ("Tata Metaliks Ltd",                          "Metals & Mining"),
+    "GRAPHITE":    ("Graphite India Ltd",                         "Metals & Mining"),
+
+    # ── FMCG (extended) ───────────────────────────────────────────────────────
+    "EMAMILTD":    ("Emami Ltd",                                  "FMCG"),
+    "JYOTHYLAB":   ("Jyothy Labs Ltd",                            "FMCG"),
+    "VARUNBEV":    ("Varun Beverages Ltd",                        "FMCG"),
+    "HATSUN":      ("Hatsun Agro Product Ltd",                    "FMCG"),
+    "BIKAJI":      ("Bikaji Foods International Ltd",             "FMCG"),
+    "BALRAMCHIN":  ("Balrampur Chini Mills Ltd",                  "FMCG"),
+    "VSTIND":      ("VST Industries Ltd",                         "FMCG"),
+    "KRBL":        ("KRBL Ltd",                                   "FMCG"),
+
+    # ── Textiles ──────────────────────────────────────────────────────────────
+    "RAYMOND":     ("Raymond Ltd",                                "Textiles"),
+    "ARVIND":      ("Arvind Ltd",                                 "Textiles"),
+    "WELSPUNIND":  ("Welspun India Ltd",                          "Textiles"),
+    "KPRMILL":     ("KPR Mill Ltd",                               "Textiles"),
+    "TRIDENT":     ("Trident Ltd",                                "Textiles"),
+    "RUPA":        ("Rupa & Company Ltd",                         "Textiles"),
+    "GOKEX":       ("Gokaldas Exports Ltd",                       "Textiles"),
+    "VTL":         ("Vardhman Textiles Ltd",                      "Textiles"),
+
+    # ── Retail (extended) ─────────────────────────────────────────────────────
+    "KALYANKJIL":  ("Kalyan Jewellers India Ltd",                 "Retail"),
+    "VEDANT":      ("Vedant Fashions Ltd",                        "Retail"),
+    "BATA":        ("Bata India Ltd",                             "Retail"),
+    "METRO":       ("Metro Brands Ltd",                           "Retail"),
+    "CAMPUS":      ("Campus Activewear Ltd",                      "Retail"),
+    "SENCO":       ("Senco Gold Ltd",                             "Retail"),
+    "THANGAMAYL":  ("Thangamayil Jewellery Ltd",                  "Retail"),
+
+    # ── Telecommunication (extended) ──────────────────────────────────────────
+    "VODAIDEA":    ("Vodafone Idea Ltd",                          "Telecommunication"),
+    "TATACOMM":    ("Tata Communications Ltd",                    "Telecommunication"),
+    "STLTECH":     ("Sterlite Technologies Ltd",                  "Telecommunication"),
+    "HFCL":        ("HFCL Ltd",                                   "Telecommunication"),
+    "TEJAS":       ("Tejas Networks Ltd",                         "Telecommunication"),
+
+    # ── Consumer Discretionary (extended) ────────────────────────────────────
+    "WONDERLA":    ("Wonderla Holidays Ltd",                      "Consumer Discretionary"),
+    "RADICO":      ("Radico Khaitan Ltd",                         "Consumer Discretionary"),
+    "SULA":        ("Sula Vineyards Ltd",                         "Consumer Discretionary"),
+    "ABFRL":       ("Aditya Birla Fashion and Retail Ltd",        "Consumer Discretionary"),
+    "PVRINOX":     ("PVR INOX Ltd",                               "Consumer Discretionary"),
+
+    # ── Defence & Aerospace (extended) ───────────────────────────────────────
+    "MAZDOCK":     ("Mazagon Dock Shipbuilders Ltd",              "Defence & Aerospace"),
+    "COCHINSHIP":  ("Cochin Shipyard Ltd",                        "Defence & Aerospace"),
+    "DATAPATTNS":  ("Data Patterns (India) Ltd",                  "Defence & Aerospace"),
+    "PARAS":       ("Paras Defence and Space Technologies Ltd",   "Defence & Aerospace"),
+    "GRSE":        ("Garden Reach Shipbuilders & Engineers Ltd",  "Defence & Aerospace"),
+    "ZENTEC":      ("Zen Technologies Ltd",                       "Defence & Aerospace"),
+
+    # ── Logistics (extended) ──────────────────────────────────────────────────
+    "TCIEXP":      ("TCI Express Ltd",                            "Logistics"),
+    "ALLCARGO":    ("Allcargo Logistics Ltd",                     "Logistics"),
+    "GATI":        ("Gati Ltd",                                   "Logistics"),
+    "MAHINDLOG":   ("Mahindra Logistics Ltd",                     "Logistics"),
+
+    # ── Real Estate (extended) ────────────────────────────────────────────────
+    "MAHLIFE":     ("Mahindra Lifespace Developers Ltd",          "Real Estate"),
+    "KOLTEPATIL":  ("Kolte-Patil Developers Ltd",                 "Real Estate"),
+    "SUNTECK":     ("Sunteck Realty Ltd",                         "Real Estate"),
+    "SIGNATURE":   ("Signature Global (India) Ltd",               "Real Estate"),
+
+    # ── Media & Entertainment ─────────────────────────────────────────────────
+    "ZEEL":        ("Zee Entertainment Enterprises Ltd",          "Media & Entertainment"),
+    "SUNTV":       ("Sun TV Network Ltd",                         "Media & Entertainment"),
+    "NETWORK18":   ("Network18 Media & Investments Ltd",          "Media & Entertainment"),
+    "TV18BRDCST":  ("TV18 Broadcast Ltd",                         "Media & Entertainment"),
 }
 
 # In-memory cache for yfinance metadata fallback (so each symbol is only

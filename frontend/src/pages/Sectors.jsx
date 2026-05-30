@@ -49,9 +49,10 @@ ${rows}
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function StrengthBadge({ strength }) {
-  if (strength === "STRONG")   return <span className="badge-strong">🟢 Strong</span>;
-  if (strength === "MODERATE") return <span className="badge-moderate">🟡 Moderate</span>;
-  return <span className="badge-watchlist">🔵 Watch</span>;
+  if (strength === "STRONG")    return <span className="badge-strong">🟢 Strong</span>;
+  if (strength === "MODERATE")  return <span className="badge-moderate">🟡 Moderate</span>;
+  if (strength === "WATCHLIST") return <span className="badge-watchlist">🔵 Watch</span>;
+  return <span className="text-gray-600 text-xs">—</span>;
 }
 
 const SORT_COLS = [
@@ -213,9 +214,10 @@ export default function Sectors() {
             <div className="flex items-center gap-3">
               <h2 className="text-base font-semibold text-white">{selected}</h2>
               <span className="text-sm text-gray-400">
-                {loadingStocks
-                  ? "Loading…"
-                  : `${sorted.length} pre-breakout stock${sorted.length !== 1 ? "s" : ""}`}
+                {loadingStocks ? "Loading…" : (() => {
+                  const bo = sorted.filter(s => s.is_breakout).length;
+                  return `${sorted.length} stock${sorted.length !== 1 ? "s" : ""}${bo > 0 ? ` · ${bo} breakout${bo !== 1 ? "s" : ""}` : ""}`;
+                })()}
               </span>
             </div>
 
@@ -289,7 +291,14 @@ export default function Sectors() {
 
                       {/* Symbol */}
                       <td className="px-4 py-3">
-                        <span className="font-semibold text-white">{row.symbol}</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-semibold text-white">{row.symbol}</span>
+                          {row.is_breakout && (
+                            <span className="text-[10px] bg-blue-900/50 text-blue-300 border border-blue-800/60 rounded px-1.5 py-0.5 font-semibold leading-none">
+                              Breakout
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Company name */}
