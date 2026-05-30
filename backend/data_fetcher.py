@@ -12,6 +12,7 @@ Why Bhavcopy over yfinance?
   - Transparent: each daily file is a plain CSV you can inspect
 """
 import logging
+import threading
 from typing import Optional
 
 import pandas as pd
@@ -22,6 +23,38 @@ from nse_bhavcopy import build_all_ohlcv, symbols_list
 logger = logging.getLogger(__name__)
 
 NIFTY_INDEX = "^NSEI"
+
+# ─── NSE downloaded sector map ───────────────────────────────────────────────
+# Built lazily on first use by downloading NSE index constituent CSV files.
+# Covers 1,000–1,500 stocks with official NSE industry classification.
+
+_nse_sector_map:      Optional[dict[str, str]] = None
+_nse_sector_map_lock: threading.Lock           = threading.Lock()
+
+
+def _get_nse_sector_map() -> dict[str, str]:
+    """Return the downloaded sector map, loading it lazily on first call."""
+    global _nse_sector_map
+    if _nse_sector_map is not None:
+        return _nse_sector_map
+    with _nse_sector_map_lock:
+        if _nse_sector_map is not None:     # double-checked locking
+            return _nse_sector_map
+        try:
+            from nse_sector_fetcher import build_sector_map
+            _nse_sector_map = build_sector_map()
+        except Exception as exc:
+            logger.warning("NSE sector map unavailable: %s — using static map only", exc)
+            _nse_sector_map = {}
+    return _nse_sector_map
+
+
+def preload_sector_map() -> None:
+    """
+    Pre-load (or refresh from cache) the NSE sector map.
+    Call this once before a bulk scan to avoid downloading mid-loop.
+    """
+    _get_nse_sector_map()
 
 
 # ─── Static company metadata ─────────────────────────────────────────────────
@@ -425,10 +458,11 @@ def get_company_info(symbol: str, exchange: str = "NSE", use_yfinance: bool = Fa
     Return name, sector, market_cap for a symbol.
 
     Priority:
-      1. Static NSE_COMPANY_INFO dict  (instant, ~200 major stocks)
+      1. Static NSE_COMPANY_INFO dict  (instant, ~360 well-known stocks)
       2. In-memory yfinance cache      (if already fetched this session)
-      3. yfinance fetch                (only when use_yfinance=True — slow, avoid in bulk)
-      4. Symbol name as fallback       (always succeeds)
+      3. Downloaded NSE sector map     (1,000–1,500 stocks via index CSV files)
+      4. yfinance fetch                (only when use_yfinance=True — slow, avoid in bulk)
+      5. Symbol name as fallback       (always succeeds)
     """
     if symbol in NSE_COMPANY_INFO:
         name, sector = NSE_COMPANY_INFO[symbol]
@@ -436,6 +470,11 @@ def get_company_info(symbol: str, exchange: str = "NSE", use_yfinance: bool = Fa
 
     if symbol in _info_cache:
         return _info_cache[symbol]
+
+    # Downloaded NSE index sector map (pre-loaded before bulk scan)
+    downloaded_sector = _get_nse_sector_map().get(symbol)
+    if downloaded_sector:
+        return {"name": symbol, "sector": downloaded_sector, "market_cap": 0}
 
     if use_yfinance:
         info = _yf_ticker_info(symbol, exchange)

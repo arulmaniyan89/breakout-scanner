@@ -21,7 +21,7 @@ import uvicorn
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from data_fetcher import fetch_all_data, get_nifty_trend, get_company_info
+from data_fetcher import fetch_all_data, get_nifty_trend, get_company_info, preload_sector_map
 from nse_bhavcopy import cache_stats
 from scanner import run_scan, BreakoutStrength
 from valuation.stock_data import fetch_stock
@@ -163,6 +163,10 @@ def _run_scan_thread():
     _state["dl_total"] = 0
 
     try:
+        # ── Step 0: Pre-load NSE sector map (download once, cache 7 days) ─────
+        _state["status_detail"] = "Loading NSE sector map…"
+        preload_sector_map()   # fast if cached on disk; ~5–10 s on first run
+
         # ── Step 1: Nifty trend (quick yfinance call) ─────────────────────────
         _state["status_detail"] = "Fetching Nifty trend…"
         nifty_up = get_nifty_trend()
@@ -399,6 +403,25 @@ def remove_watchlist(symbol: str):
     if sym in _state["watchlist"]:
         _state["watchlist"].remove(sym)
     return {"removed": sym}
+
+
+@app.post("/api/sectors/refresh")
+def refresh_sector_map():
+    """Force-refresh the NSE sector map from NSE archives (runs in background)."""
+    def _do():
+        from data_fetcher import _nse_sector_map_lock
+        from nse_sector_fetcher import build_sector_map
+        from data_fetcher import _nse_sector_map as _old  # noqa
+        import data_fetcher as _df
+        try:
+            new_map = build_sector_map(force_refresh=True)
+            with _nse_sector_map_lock:
+                _df._nse_sector_map = new_map
+            logger.info("Sector map refreshed: %d symbols", len(new_map))
+        except Exception as exc:
+            logger.warning("Sector map refresh failed: %s", exc)
+    threading.Thread(target=_do, daemon=True).start()
+    return {"status": "refreshing sector map in background"}
 
 
 @app.post("/api/scan/trigger")
