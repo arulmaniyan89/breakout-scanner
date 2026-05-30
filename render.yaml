@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: breakout-scanner
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: TZ
+        value: Asia/Kolkata
+    healthCheckPath: /health

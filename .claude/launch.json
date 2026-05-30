@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "breakout-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "C:\\Users\\arulm\\Breakout\\frontend",
+      "port": 3000,
+      "autoPort": true
+    }
+  ]
+}

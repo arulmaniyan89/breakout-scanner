@@ -1,0 +1,31 @@
+# ── Large generated data (do NOT commit) ─────────────────────────────────────
+backend/bhavcopy_cache/
+backend/scan_results.json
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+*.egg
+
+# ── Node / Frontend ───────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+
+# ── Secrets / environment ─────────────────────────────────────────────────────
+.env
+backend/.env
+*.env.local
+
+# ── OS junk ───────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/

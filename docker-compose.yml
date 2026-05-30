@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: breakout_db
+    environment:
+      POSTGRES_DB: breakout_db
+      POSTGRES_USER: breakout
+      POSTGRES_PASSWORD: breakout
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U breakout"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: breakout_backend
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://breakout:breakout@db:5432/breakout_db
+      TZ: Asia/Kolkata
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    container_name: breakout_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
