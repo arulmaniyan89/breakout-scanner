@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { TrendingUp, BookMarked, History, Bell, FlaskConical, Building2, BookOpen } from "lucide-react";
+import { TrendingUp, BookMarked, History, Bell, FlaskConical, Building2, Globe, BookOpen } from "lucide-react";
 import clsx from "clsx";
 
 const links = [
@@ -10,6 +10,7 @@ const links = [
   { to: "/alerts",      label: "Alerts",       icon: Bell         },
   { to: "/evaluate",    label: "Evaluate",     icon: FlaskConical },
   { to: "/sectors",     label: "Sectors",      icon: Building2    },
+  { to: "/universe",    label: "NSE Stocks",   icon: Globe        },
   { to: "/methodology", label: "How It Works", icon: BookOpen     },
 ];
 
@@ -27,7 +28,7 @@ export default function Navbar() {
         </div>
 
         {/* Links */}
-        <div className="flex items-center gap-1 ml-4">
+        <div className="flex items-center gap-1 ml-4 overflow-x-auto">
           {links.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -35,7 +36,7 @@ export default function Navbar() {
               end={to === "/"}
               className={({ isActive }) =>
                 clsx(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition whitespace-nowrap",
                   isActive
                     ? "bg-blue-900/40 text-blue-300"
                     : "text-gray-400 hover:text-gray-200 hover:bg-gray-800"
@@ -49,7 +50,7 @@ export default function Navbar() {
         </div>
 
         {/* Right: live badge */}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 shrink-0">
           <span className="flex items-center gap-1.5 text-xs text-gray-400">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             Live · ~15 min delay

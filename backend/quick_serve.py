@@ -555,6 +555,63 @@ def evaluate_batch(payload: dict):
     return results
 
 
+# ── NSE Universe endpoints (all listed stocks, independent of scan) ───────────
+
+@app.get("/api/universe/sectors")
+def universe_sectors():
+    """
+    All NSE sectors with stock counts, drawn from the complete equity master
+    (EQUITY_L.csv).  No scan required — works from first load.
+    """
+    from nse_universe import fetch_universe
+    stocks = fetch_universe()
+    counts: dict[str, int] = {}
+    for s in stocks:
+        sector = s.get("sector") or "Unknown"
+        if sector == "Unknown":
+            continue
+        counts[sector] = counts.get(sector, 0) + 1
+    total = len(stocks)
+    known = sum(counts.values())
+    result = [{"sector": sec, "count": cnt} for sec, cnt in counts.items()]
+    result.sort(key=lambda x: -x["count"])
+    return {"sectors": result, "total_stocks": total, "classified_stocks": known}
+
+
+@app.get("/api/universe/stocks")
+def universe_stocks(
+    sector: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+):
+    """
+    All NSE EQ-series stocks, optionally filtered by sector and/or search.
+    Returns list of {symbol, name, isin, sector}.
+    """
+    from nse_universe import fetch_universe
+    stocks = fetch_universe()
+    if sector and sector.upper() not in ("ALL", ""):
+        target = sector.lower().strip()
+        stocks = [s for s in stocks if (s.get("sector") or "Unknown").lower() == target]
+    if search and search.strip():
+        q = search.strip().lower()
+        stocks = [s for s in stocks
+                  if q in s["symbol"].lower() or q in s.get("name", "").lower()]
+    return stocks
+
+
+@app.post("/api/universe/refresh")
+def universe_refresh():
+    """Force re-download of EQUITY_L.csv and sector map (background task)."""
+    def _do():
+        from nse_universe import fetch_universe
+        import nse_universe as _u
+        _u._universe_cache = None      # clear in-memory cache
+        fetch_universe(force_refresh=True)
+        logger.info("NSE universe refreshed")
+    threading.Thread(target=_do, daemon=True).start()
+    return {"status": "refreshing NSE universe in background"}
+
+
 # ── Sector endpoints ─────────────────────────────────────────────────────────
 
 @app.get("/api/sectors/list")

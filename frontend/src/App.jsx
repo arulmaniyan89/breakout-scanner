@@ -11,6 +11,7 @@ import Alerts from "./pages/Alerts";
 import Methodology from "./pages/Methodology";
 import Evaluate from "./pages/Evaluate";
 import Sectors from "./pages/Sectors";
+import Universe from "./pages/Universe";
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/methodology" element={<Methodology />} />
           <Route path="/evaluate" element={<Evaluate />} />
           <Route path="/sectors" element={<Sectors />} />
+          <Route path="/universe" element={<Universe />} />
         </Routes>
       </main>
     </BrowserRouter>

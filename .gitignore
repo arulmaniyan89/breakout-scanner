@@ -2,6 +2,7 @@
 backend/bhavcopy_cache/
 backend/scan_results.json
 backend/nse_sector_cache.json
+backend/nse_universe_cache.json
 
 # ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
