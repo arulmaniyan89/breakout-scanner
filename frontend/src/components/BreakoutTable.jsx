@@ -30,6 +30,7 @@ function CriteriaIndicators({ row }) {
     { key: "volume_confirmed", label: "V" },
     { key: "momentum_ok", label: "M" },
     { key: "trend_ok", label: "T" },
+    { key: "breakout_100d", label: "E" },
   ];
   return (
     <div className="flex gap-0.5 mt-0.5">

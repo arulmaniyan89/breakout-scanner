@@ -36,10 +36,11 @@ const VERDICT_STYLES = {
 
 function BreakoutContextPanel({ data }) {
   const criteria = [
-    { key: "price_breakout",   label: "Near Resistance",      short: "P" },
-    { key: "volume_confirmed", label: "Volume Building",      short: "V" },
-    { key: "momentum_ok",      label: "Momentum (RSI+MACD)",  short: "M" },
-    { key: "trend_ok",         label: "Trend + Consolidation",short: "T" },
+    { key: "price_breakout",   label: "Near Resistance",           short: "P" },
+    { key: "volume_confirmed", label: "Volume Building",           short: "V" },
+    { key: "momentum_ok",      label: "Momentum (RSI+MACD)",       short: "M" },
+    { key: "trend_ok",         label: "Trend + Consolidation",     short: "T" },
+    { key: "breakout_100d",    label: "Vol > Yesterday + 100D High", short: "E" },
   ];
 
   const strengthStyle = {

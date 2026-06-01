@@ -125,6 +125,8 @@ def _as_dict(analysis, name: str, sector: str, market_cap: float) -> dict:
         "volume_confirmed": analysis.volume_confirmed,
         "momentum_ok": analysis.momentum_ok,
         "trend_ok": analysis.trend_ok,
+        "breakout_100d": analysis.breakout_100d,
+        "high_100d": analysis.high_100d,
         "criteria_met": analysis.criteria_met,
         "breakout_type": analysis.breakout_type,
         "strength": analysis.strength.value if analysis.strength else None,

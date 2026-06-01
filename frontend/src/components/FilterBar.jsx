@@ -15,6 +15,7 @@ const CRITERIA = [
   { key: "volume_confirmed", label: "Volume",           icon: "📊", color: "blue"    },
   { key: "momentum_ok",      label: "Momentum",         icon: "⚡", color: "yellow"  },
   { key: "trend_ok",         label: "Trend",            icon: "🔺", color: "purple"  },
+  { key: "breakout_100d",    label: "Vol↑ + 100D High", icon: "🚀", color: "orange"  },
 ];
 
 const activeColors = {
@@ -22,12 +23,14 @@ const activeColors = {
   blue:    "bg-blue-600 text-white border-blue-500",
   yellow:  "bg-yellow-600 text-white border-yellow-500",
   purple:  "bg-purple-600 text-white border-purple-500",
+  orange:  "bg-orange-600 text-white border-orange-500",
 };
 const inactiveColors = {
   emerald: "text-emerald-400 border-emerald-800 hover:bg-emerald-900/40",
   blue:    "text-blue-400 border-blue-800 hover:bg-blue-900/40",
   yellow:  "text-yellow-400 border-yellow-800 hover:bg-yellow-900/40",
   purple:  "text-purple-400 border-purple-800 hover:bg-purple-900/40",
+  orange:  "text-orange-400 border-orange-800 hover:bg-orange-900/40",
 };
 
 export default function FilterBar({ filters, onChange }) {

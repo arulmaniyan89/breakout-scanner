@@ -179,7 +179,7 @@ export default function StockDetail() {
           <InfoRow label="Breakout Type" value={s?.breakout_type || "—"} />
           <InfoRow label="Strength Score" value={`${s?.strength_score?.toFixed(1)} / 100`}
             color="text-yellow-400" />
-          <InfoRow label="Criteria Met" value={`${s?.criteria_met} / 4`} />
+          <InfoRow label="Criteria Met" value={`${s?.criteria_met} / 5`} />
           <InfoRow label="Sector" value={s?.sector} />
           <InfoRow label="Market Cap"
             value={s?.market_cap ? `₹${(s.market_cap / 100).toFixed(0)}Cr` : "—"} />
@@ -189,11 +189,12 @@ export default function StockDetail() {
       {/* Breakout criteria checklist */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
         <h3 className="text-sm font-semibold text-white mb-3">Breakout Criteria Checklist</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           <CriteriaPill label="Price Breakout" met={s?.price_breakout} />
           <CriteriaPill label="Volume ≥ 2x Avg" met={s?.volume_confirmed} />
           <CriteriaPill label="RSI 55–75 + MACD" met={s?.momentum_ok} />
           <CriteriaPill label="Trend Filter (Nifty)" met={s?.trend_ok} />
+          <CriteriaPill label="Vol↑ + 100D High" met={s?.breakout_100d} />
         </div>
       </div>
 

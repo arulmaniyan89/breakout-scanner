@@ -56,6 +56,7 @@ def compute_indicators(df: pd.DataFrame) -> dict:
     ind["avg_vol_10"] = sma(volume, 10)  # prior 10-day volume avg
     ind["high_20d"] = df["high"].rolling(20, min_periods=10).max()
     ind["high_10d"] = df["high"].rolling(10, min_periods=5).max()
+    ind["high_100d"] = df["high"].rolling(100, min_periods=80).max().shift(1)  # yesterday's 100d high
     ind["high_52w"] = df["high"].rolling(252, min_periods=200).max()
     ind["low_52w"] = df["low"].rolling(252, min_periods=200).min()
     # 10-day price range as % of close — measures consolidation tightness
@@ -89,10 +90,13 @@ class BreakoutAnalysis:
     macd_signal: float = 0.0
     macd_hist: float = 0.0
 
+    high_100d: float = 0.0
+
     price_breakout: bool = False
     volume_confirmed: bool = False
     momentum_ok: bool = False
     trend_ok: bool = False
+    breakout_100d: bool = False   # vol > yesterday AND close > 100-day high
     criteria_met: int = 0
 
     breakout_type: str = ""
@@ -148,6 +152,7 @@ def analyse_stock(
     avg_vol10 = safe(ind["avg_vol_10"])
     range_10d = safe(ind["range_10d_pct"])
     rsi_5d_ago = safe(ind["rsi"], -6)  # RSI 5 sessions ago
+    h100 = safe(ind["high_100d"])      # yesterday's 100-session high
 
     if any(v is None for v in [s50, rsi_val, avg_vol, h52]):
         return None
@@ -214,15 +219,24 @@ def analyse_stock(
     consolidating = range_10d is not None and range_10d < 8.0
     a.trend_ok = above_50dma and consolidating
 
+    # ── Criterion E: Volume expanding + Close breaking 100-day high ──────────
+    # Today's volume must exceed yesterday's volume AND
+    # today's close must be above the highest close of the prior 100 sessions
+    prev_vol_val = float(df["volume"].iloc[-2]) if len(df) >= 2 else vol
+    vol_gt_yesterday = vol > prev_vol_val
+    close_above_100d = h100 is not None and cmp > h100
+    a.breakout_100d = bool(vol_gt_yesterday and close_above_100d)
+    a.high_100d = h100 or 0.0
+
     # ── Score ────────────────────────────────────────────────────────────────
-    criteria = [a.price_breakout, a.volume_confirmed, a.momentum_ok, a.trend_ok]
+    criteria = [a.price_breakout, a.volume_confirmed, a.momentum_ok, a.trend_ok, a.breakout_100d]
     a.criteria_met = sum(criteria)
 
     if a.criteria_met < 2:
         return None  # Need at least 2 signals to be a valid pre-breakout setup
 
-    # Strength classification
-    if a.criteria_met == 4:
+    # Strength classification (5 criteria total — 4+ = STRONG)
+    if a.criteria_met >= 4:
         a.strength = BreakoutStrength.STRONG
         a.strength_score = 90 + min(10, (volume_ratio - 2) * 2)
     elif a.criteria_met == 3:

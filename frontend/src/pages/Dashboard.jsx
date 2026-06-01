@@ -123,6 +123,7 @@ const CRITERIA_KEYS = {
   volume_confirmed: "volume_confirmed",
   momentum_ok:      "momentum_ok",
   trend_ok:         "trend_ok",
+  breakout_100d:    "breakout_100d",
 };
 
 function applyFilters(data, filters) {
